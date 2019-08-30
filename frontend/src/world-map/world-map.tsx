@@ -57,7 +57,7 @@ const generateGrid = (
 };
 
 const calculateWorldDimension = (positions: number[][], dimension: number) => {
-  return Math.max(...positions.map(position => position[dimension]), 39) + 1;
+  return Math.max(...positions.map(position => position[dimension]), 49) + 1;
 };
 
 const buildCells = (
