@@ -1,6 +1,6 @@
-import React, { useState, useEffect, Fragment } from "react";
-import styled from "styled-components";
+import React, { Fragment, useEffect, useState } from "react";
 import io from "socket.io-client";
+import styled from "styled-components";
 
 const socket = io.connect("http://127.0.0.1:5000/world_map");
 
@@ -25,14 +25,11 @@ function WorldMapGrid() {
   const [worldElements, setWorldElements] = useState([]);
   useEffect(() => subscribe((worldElements: []) => setWorldElements(worldElements)), []);
 
-  let possible_cells = [<RedCell />, <GreenCell />];
-  let index = 0;
-  let element_name_mapping = new Map();
-  worldElements.forEach((element: WorldElement) => {
-    if (!element_name_mapping.has(element.element_name)) {
-      element_name_mapping.set(element.element_name, possible_cells[index++]);
-    }
-  });
+  let element_name_mapping = new Map([
+    ["Food", <GreenCell />],
+    ["SlowMonster", <RedCell />],
+    ["FastMonster", <OrangeCell />]
+  ]);
 
   return <Fragment>{generateGrid(worldElements, element_name_mapping)}</Fragment>;
 }
@@ -119,6 +116,12 @@ const BlankCell = styled.div`
 const RedCell = styled.div`
   border-radius: 50%;
   background-color: #ff2e2e;
+  flex: 1;
+`;
+
+const OrangeCell = styled.div`
+  border-radius: 50%;
+  background-color: #f59042;
   flex: 1;
 `;
 

@@ -1,4 +1,4 @@
-from typing import Generic, Set, TypeVar
+from typing import Generic, Iterable, Set, TypeVar
 
 from src.position import Position
 from src.monster.energy import Energy, NoMoreEnergy
@@ -11,16 +11,18 @@ class WorldElements(Generic[WorldElementSubclass]):
         self.world_elements = world_elements
         self.index = 0
 
-    def __iter__(self):
-        return iter(list(self.world_elements))
+    def elements_surrounding(
+        self, position: Position, surrounding_range: float
+    ) -> Iterable[WorldElementSubclass]:
+        def element_distance_inside_range(element: WorldElementSubclass):
+            return element.distance_from(position) <= surrounding_range
 
-    def __len__(self) -> int:
-        return len(self.world_elements)
+        return list(filter(element_distance_inside_range, self.world_elements))
 
-    def _remove(self, element: WorldElementSubclass):
+    def remove(self, element: WorldElementSubclass):
         self.world_elements.remove(element)
 
-    def _add(self, element: WorldElementSubclass):
+    def add(self, element: WorldElementSubclass):
         self.world_elements.add(element)
 
     def move(
@@ -30,21 +32,24 @@ class WorldElements(Generic[WorldElementSubclass]):
         energy: Energy,
     ):
         try:
-            energy.remove(delta_position.magnitude())
+            energy.remove(delta_position.magnitude() ** 2)
             self._move(element_to_move, delta_position)
         except NoMoreEnergy:
             raise NotEnoughEnergyToMove()
 
     def _move(self, element: WorldElementSubclass, delta_position: Position):
-        self._remove(element)
-        self._add(element.move_by(delta_position))
-
-    def is_empty(self) -> bool:
-        return len(self.world_elements) == 0
+        self.remove(element)
+        self.add(element.move_by(delta_position))
 
     def has(self, element: WorldElementSubclass) -> bool:
         result = element in self.world_elements
         return result
+
+    def __iter__(self):
+        return iter(list(self.world_elements))
+
+    def __len__(self) -> int:
+        return len(self.world_elements)
 
 
 class NotEnoughEnergyToMove(Exception):

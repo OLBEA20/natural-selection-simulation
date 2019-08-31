@@ -26,6 +26,9 @@ class Position(NamedTuple):
     def __add__(self, other: Position) -> Position:
         return Position(self.x + other.x, self.y + other.y)
 
+    def __sub__(self, other: Position) -> Position:
+        return Position(self.x - other.x, self.y - other.y)
+
 
 def bound(value: int):
     return min(39, max(0, value))

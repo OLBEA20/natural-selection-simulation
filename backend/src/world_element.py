@@ -18,6 +18,12 @@ class WorldElement(ABC):
     def display(self, world_map: WorldMap):
         pass
 
+    def distance_from(self, position: Position) -> float:
+        return self.delta_position_from(position).magnitude()
+
+    def delta_position_from(self, position: Position) -> Position:
+        return self.position - position
+
     def __hash__(self) -> int:
         return self.position.__hash__()
 

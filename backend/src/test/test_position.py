@@ -33,6 +33,15 @@ class PositionTest(unittest.TestCase):
         expected_position = Position(X_1 + X_2, Y_1 + Y_2)
         self.assertEqual(expected_position, actual_position)
 
+    def test_whenSubstractingPositions_thenCoordinatesAreSubstractedToEachOther(self):
+        position_1 = Position(X_1, Y_1)
+        position_2 = Position(X_2, Y_2)
+
+        actual_position = position_1 - position_2
+
+        expected_position = Position(X_1 - X_2, Y_1 - Y_2)
+        self.assertEqual(expected_position, actual_position)
+
     def test_whenCalculatingMagnitude_thenMagnitudeIsCorrect(self):
         position = Position(X_1, Y_1)
 

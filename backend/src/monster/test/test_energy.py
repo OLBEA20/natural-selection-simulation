@@ -18,3 +18,12 @@ class EnergyTest(unittest.TestCase):
         energy = Energy(INITIAL_VALUE)
 
         self.assertRaises(NoMoreEnergy, energy.remove, INITIAL_VALUE)
+
+    def test_whenAddingEnergyToEnergy_thenEnergyIsTransferred(self):
+        energy = Energy(INITIAL_VALUE)
+        energy_to_add = Energy(SOME_VALUE)
+
+        energy.add(energy_to_add)
+
+        self.assertEqual(INITIAL_VALUE + SOME_VALUE, energy.value)
+        self.assertEqual(0, energy_to_add.value)
