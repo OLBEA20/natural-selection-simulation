@@ -6,7 +6,7 @@ interface WorldMapProps {
   elementNameMapping: Map<string, string>;
 }
 
-interface WorldElement {
+export interface WorldElement {
   element_name: string;
   position: number[];
 }
@@ -78,8 +78,8 @@ const buildRows = (cells: JSX.Element[], width: number, height: number) => {
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  width: 90vw;
-  height: 95vh;
+  height: 98vh;
+  flex: 10;
 `;
 
 const Row = styled.div`

@@ -43,7 +43,7 @@ class NormalMonster(Monster):
             foods.remove(food)
 
     def _try_to_reproduce(self, monsters: WorldElements[Monster]):
-        if randint(0, 50) > 49:
+        if randint(0, 30) > 29:
             print("Reproducing")
             try:
                 self.energy.remove(10)

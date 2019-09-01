@@ -1,7 +1,8 @@
-import React, { Fragment, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import io from "socket.io-client";
-import WorldMap from "./world-map/world-map";
+import WorldMap, { WorldElement } from "./world-map/world-map";
 import Legend from "./legend/legend";
+import styled from "styled-components";
 
 const socket = io.connect("http://127.0.0.1:5000/world_map");
 
@@ -14,12 +15,17 @@ function App() {
   useEffect(() => subscribe((worldElements: []) => setWorldElements(worldElements)), []);
 
   return (
-    <Fragment>
+    <Container>
       <WorldMap worldElements={worldElements} elementNameMapping={elementNameMapping} />
-      {Legend(elementNameMapping)}
-    </Fragment>
+      {Legend(elementNameMapping, worldElements.map((worldElement: WorldElement) => worldElement.element_name))}
+    </Container>
   );
 }
+
+const Container = styled.div`
+  display: flex;
+  heigth: 98vh;
+`
 
 const elementNameMapping = new Map([
   ["Food", "#28f75c"],

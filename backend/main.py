@@ -51,7 +51,7 @@ def run_simulation(socket: SocketIO):
     for monster in fast_monsters:
         monsters.add(monster)
     foods = generate_world_elements(
-        lambda position_energy: Food(*position_energy), randint(20, 25)
+        lambda position_energy: Food(*position_energy), randint(40, 50)
     )
     print(f"Spawning {len(foods)} Food")
     world = World(monsters, foods, world_map_constructor(socket))
