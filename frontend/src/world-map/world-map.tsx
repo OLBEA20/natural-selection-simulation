@@ -1,11 +1,9 @@
-import React, { Fragment, useEffect, useState } from "react";
-import io from "socket.io-client";
+import React from "react";
 import styled from "styled-components";
 
-const socket = io.connect("http://127.0.0.1:5000/world_map");
-
-function subscribe(callback: any) {
-  socket.on("json", (data: string) => callback(JSON.parse(data)));
+interface WorldMapProps {
+  worldElements: WorldElement[];
+  elementNameMapping: Map<string, string>;
 }
 
 interface WorldElement {
@@ -13,30 +11,13 @@ interface WorldElement {
   position: number[];
 }
 
-const WorldMap: React.FC = () => {
-  return (
-    <Container>
-      <WorldMapGrid />
-    </Container>
-  );
-};
-
-function WorldMapGrid() {
-  const [worldElements, setWorldElements] = useState([]);
-  useEffect(() => subscribe((worldElements: []) => setWorldElements(worldElements)), []);
-
-  let element_name_mapping = new Map([
-    ["Food", <GreenCell />],
-    ["SlowMonster", <RedCell />],
-    ["FastMonster", <OrangeCell />]
-  ]);
-
-  return <Fragment>{generateGrid(worldElements, element_name_mapping)}</Fragment>;
+function WorldMap(props: WorldMapProps) {
+  return <Container>{generateGrid(props.worldElements, props.elementNameMapping)}</Container>;
 }
 
 const generateGrid = (
   worldElements: WorldElement[],
-  element_name_mapping: Map<string, JSX.Element>
+  elementNameMapping: Map<string, string>
 ) => {
   const positions: number[][] = worldElements.map(
     (element: WorldElement) => element.position
@@ -46,7 +27,7 @@ const generateGrid = (
 
   const cells: JSX.Element[] = buildCells(
     worldElements,
-    element_name_mapping,
+    elementNameMapping,
     width,
     height
   );
@@ -59,7 +40,7 @@ const calculateWorldDimension = (positions: number[][], dimension: number) => {
 
 const buildCells = (
   worldElements: WorldElement[],
-  element_name_mapping: Map<string, JSX.Element>,
+  elementNameMapping: Map<string, string>,
   width: number,
   height: number
 ) => {
@@ -68,7 +49,7 @@ const buildCells = (
     (element: WorldElement) =>
       (cells[calculateIndex(element.position, width)] = getElement(
         element.element_name,
-        element_name_mapping
+        elementNameMapping
       ))
   );
   return cells.map((cell: JSX.Element, index: number) => ({ ...cell, key: index }));
@@ -80,9 +61,9 @@ const calculateIndex = (position: number[], width: number) => {
 
 const getElement = (
   element_name: string,
-  element_name_mapping: Map<string, JSX.Element>
+  elementNameMapping: Map<string, string>
 ): JSX.Element => {
-  const element: JSX.Element | undefined = element_name_mapping.get(element_name);
+  const element: JSX.Element | undefined = <Cell color={elementNameMapping.get(element_name)}/>;
   return element === undefined ? <BlankCell /> : element;
 };
 
@@ -98,7 +79,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   width: 90vw;
-  height: 90vh;
+  height: 95vh;
 `;
 
 const Row = styled.div`
@@ -113,21 +94,9 @@ const BlankCell = styled.div`
   flex: 1;
 `;
 
-const RedCell = styled.div`
+const Cell = styled.div`
   border-radius: 50%;
-  background-color: #ff2e2e;
-  flex: 1;
-`;
-
-const OrangeCell = styled.div`
-  border-radius: 50%;
-  background-color: #f59042;
-  flex: 1;
-`;
-
-const GreenCell = styled.div`
-  border-radius: 50%;
-  background-color: #28f75c;
+  background-color: ${props => props.color};
   flex: 1;
 `;
 
