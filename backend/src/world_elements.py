@@ -35,9 +35,7 @@ class WorldElements(Generic[WorldElementSubclass]):
             self._move(element_to_move, delta_position)
             energy.remove(delta_position.magnitude() ** 2)
         except NoMoreEnergy:
-            self._move(
-                element_to_move.move_by(delta_position), delta_position.inverse()
-            )
+            self._undo_move(element_to_move, delta_position)
             raise NotEnoughEnergyToMove()
 
     def _move(self, element: WorldElementSubclass, delta_position: Position):
@@ -45,6 +43,9 @@ class WorldElements(Generic[WorldElementSubclass]):
             raise PositionAlreadyOccupied
         self.remove(element)
         self.add(element.move_by(delta_position))
+
+    def _undo_move(self, element: WorldElementSubclass, delta_position: Position):
+        self._move(element.move_by(delta_position), delta_position.inverse())
 
     def has(self, element: WorldElementSubclass) -> bool:
         result = element in self.world_elements

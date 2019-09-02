@@ -77,6 +77,15 @@ class WorldElementsTest(unittest.TestCase):
 
         self.assertRaises(PositionAlreadyOccupied, world_elements.move, *arguments)
 
+    def test_givenPositionAlreadyOccupied_whenMovingElement_thenNoMovementHappen(self):
+        energy = create_autospec(Energy)
+        another_monster = A_MONSTER.move_by(A_DELTA_POSITION)
+        world_elements = WorldElements({A_MONSTER, another_monster})
+
+        silence(world_elements.move)(A_MONSTER, A_DELTA_POSITION, energy)
+
+        self.assertIn(A_MONSTER, world_elements)
+
     def test_givenPositionAlreadyOccupied_whenMovingElement_thenNoEnergyIsWithdrawned(
         self
     ):
