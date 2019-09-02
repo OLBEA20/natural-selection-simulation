@@ -2,7 +2,6 @@ from typing import Tuple
 import json
 
 from src.world_map import WorldMap
-from src.position import Position
 
 
 class WebWorldMap(WorldMap):
@@ -10,7 +9,7 @@ class WebWorldMap(WorldMap):
         self.elements = []
         self.socket = socket
 
-    def add_element(self, element: Tuple[str, Position]):
+    def add_element(self, element: Tuple[str, Tuple[int, int]]):
         self.elements.append(element)
 
     def display(self):

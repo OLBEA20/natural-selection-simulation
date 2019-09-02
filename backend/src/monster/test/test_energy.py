@@ -27,3 +27,17 @@ class EnergyTest(unittest.TestCase):
 
         self.assertEqual(INITIAL_VALUE + SOME_VALUE, energy.value)
         self.assertEqual(0, energy_to_add.value)
+
+    def test_whenSplittingEnergy_thenHalfEnergyIsRemoved(self):
+        energy = Energy(INITIAL_VALUE)
+
+        energy.split()
+
+        self.assertEqual(INITIAL_VALUE / 2, energy.value)
+
+    def test_whenSplittingEnergy_thenHalfEnergyIsReturned(self):
+        energy = Energy(INITIAL_VALUE)
+
+        new_energy = energy.split()
+
+        self.assertEqual(INITIAL_VALUE / 2, new_energy.value)

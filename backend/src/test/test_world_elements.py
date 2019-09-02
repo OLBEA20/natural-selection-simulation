@@ -1,10 +1,14 @@
 import unittest
 from unittest.mock import create_autospec
 
-from src.position import Position
-from src.monster.normal_monster import NormalMonster
 from src.monster.energy import Energy, NoMoreEnergy
-from src.world_elements import WorldElements, NotEnoughEnergyToMove
+from src.monster.normal_monster import NormalMonster
+from src.position import Position
+from src.world_elements import (
+    NotEnoughEnergyToMove,
+    PositionAlreadyOccupied,
+    WorldElements,
+)
 
 A_POSITION = Position(1, 1)
 A_DELTA_POSITION = Position(2, 2)
@@ -65,6 +69,23 @@ class WorldElementsTest(unittest.TestCase):
         silence(world_elements.move)(A_MONSTER, A_DELTA_POSITION, energy)
 
         self.assertIn(A_MONSTER, world_elements)
+
+    def test_givenPositionAlreadyOccupied_whenMovingElement_thenExceptionIsRaised(self):
+        energy = create_autospec(Energy)
+        world_elements = WorldElements({A_MONSTER})
+        arguments = (A_MONSTER, Position(0, 0), energy)
+
+        self.assertRaises(PositionAlreadyOccupied, world_elements.move, *arguments)
+
+    def test_givenPositionAlreadyOccupied_whenMovingElement_thenNoEnergyIsWithdrawned(
+        self
+    ):
+        energy = create_autospec(Energy)
+        world_elements = WorldElements({A_MONSTER})
+
+        silence(world_elements.move)(A_MONSTER, Position(0, 0), energy)
+
+        energy.remove.assert_not_called()
 
     def test_givenElementInRange_whenGettingSurroundingElements_thenElementInIterable(
         self

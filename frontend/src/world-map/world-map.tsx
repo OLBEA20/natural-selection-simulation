@@ -78,7 +78,7 @@ const buildRows = (cells: JSX.Element[], width: number, height: number) => {
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  height: 98vh;
+  height: 85vh;
   flex: 10;
 `;
 

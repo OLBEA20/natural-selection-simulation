@@ -32,12 +32,17 @@ class WorldElements(Generic[WorldElementSubclass]):
         energy: Energy,
     ):
         try:
-            energy.remove(delta_position.magnitude() ** 2)
             self._move(element_to_move, delta_position)
+            energy.remove(delta_position.magnitude() ** 2)
         except NoMoreEnergy:
+            self._move(
+                element_to_move.move_by(delta_position), delta_position.inverse()
+            )
             raise NotEnoughEnergyToMove()
 
     def _move(self, element: WorldElementSubclass, delta_position: Position):
+        if element.move_by(delta_position) in self.world_elements:
+            raise PositionAlreadyOccupied
         self.remove(element)
         self.add(element.move_by(delta_position))
 
@@ -53,4 +58,8 @@ class WorldElements(Generic[WorldElementSubclass]):
 
 
 class NotEnoughEnergyToMove(Exception):
+    pass
+
+
+class PositionAlreadyOccupied(Exception):
     pass

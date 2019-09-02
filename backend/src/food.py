@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import Any, Dict
 
 from src.position import Position
 from src.monster.energy import Energy
@@ -23,5 +24,5 @@ class Food(WorldElement):
     def digest(self, energy: Energy):
         energy.add(self.energy)
 
-    def _representation(self):
+    def _representation(self) -> Dict[str, Any]:
         return {"element_name": self.__class__.__name__, "position": self.position}

@@ -8,7 +8,11 @@ from src.food import Food
 from src.monster.energy import Energy, NoMoreEnergy
 from src.monster.monster import Monster
 from src.position import Position
-from src.world_elements import NotEnoughEnergyToMove, WorldElements
+from src.world_elements import (
+    NotEnoughEnergyToMove,
+    PositionAlreadyOccupied,
+    WorldElements,
+)
 from src.world_map import WorldMap
 
 
@@ -35,6 +39,8 @@ class NormalMonster(Monster):
             monsters.move(self, movement, self.energy)
         except NotEnoughEnergyToMove:
             self._die(monsters)
+        except PositionAlreadyOccupied:
+            pass
 
     def _try_to_eat(self, foods: WorldElements[Food]):
         food = foods.elements_surrounding(self.position, 0)
@@ -44,7 +50,6 @@ class NormalMonster(Monster):
 
     def _try_to_reproduce(self, monsters: WorldElements[Monster]):
         if randint(0, 30) > 29:
-            print("Reproducing")
             try:
                 self.energy.remove(10)
             except NoMoreEnergy:
@@ -52,7 +57,7 @@ class NormalMonster(Monster):
             monsters.add(
                 NormalMonster(
                     random.choice(self.possible_moves),
-                    Energy(self.energy.value),
+                    self.energy.split(),
                     self.range_of_motion,
                     self.name,
                 )
@@ -70,9 +75,8 @@ class NormalMonster(Monster):
         self.energy.add(food.energy)
 
     def move_by(self, delta_position: Position) -> NormalMonster:
-        return NormalMonster(
-            self.position + delta_position, self.energy, self.range_of_motion, self.name
-        )
+        new_position = (self.position + delta_position).bound(0, 0)
+        return NormalMonster(new_position, self.energy, self.range_of_motion, self.name)
 
     def display(self, world_map: WorldMap):
         world_map.add_element(self._representation())

@@ -1,5 +1,6 @@
+import random
 from random import randint
-from time import sleep
+from time import sleep, time
 from typing import Callable, Tuple
 
 from flask import Flask
@@ -7,8 +8,8 @@ from flask_socketio import SocketIO
 
 from src.display.web_world_map import WebWorldMap
 from src.food import Food
-from src.monster.normal_monster import NormalMonster
 from src.monster.energy import Energy
+from src.monster.normal_monster import NormalMonster
 from src.position import Position
 from src.world import World
 from src.world_element import WorldElement
@@ -29,7 +30,7 @@ def generate_world_elements(
     element_constructor: Callable[[Tuple[Position, Energy]], WorldElement],
     number_of_elements: int,
 ) -> WorldElements:
-    position_range = (0, 50)
+    position_range = (5, 50)
     world_element_positions = [
         (Position(randint(*position_range), randint(*position_range)), Energy(200))
         for _ in range(number_of_elements)
@@ -38,25 +39,29 @@ def generate_world_elements(
 
 
 def run_simulation(socket: SocketIO):
+    random.seed(time())
     monsters = generate_world_elements(
         lambda position_energy: NormalMonster(*position_energy, 1, "SlowMonster"),
         randint(5, 15),
     )
-    print(f"Spawning {len(monsters)} SlowMonster")
     fast_monsters = generate_world_elements(
         lambda position_energy: NormalMonster(*position_energy, 2, "FastMonster"),
         randint(5, 15),
     )
-    print(f"Spawning {len(fast_monsters)} FastMonster")
     for monster in fast_monsters:
         monsters.add(monster)
-    foods = generate_world_elements(
-        lambda position_energy: Food(*position_energy), randint(40, 50)
-    )
-    print(f"Spawning {len(foods)} Food")
-    world = World(monsters, foods, world_map_constructor(socket))
 
-    for _ in range(500):
+    foods = generate_world_elements(
+        lambda position_energy: Food(*position_energy), randint(90, 100)
+    )
+    world = World(monsters, foods, world_map_constructor(socket))
+    for turn in range(500):
+        if turn % 50 == 0:
+            foods = generate_world_elements(
+                lambda position_energy: Food(*position_energy), randint(20, 30)
+            )
+            for food in foods:
+                world.foods.add(food)
         world.play_one_day()
         world.display()
         sleep(0.5)
@@ -64,4 +69,4 @@ def run_simulation(socket: SocketIO):
 
 if __name__ == "__main__":
     socketio.start_background_task(run_simulation, socketio)
-    socketio.run(app, host="localhost", debug=True)
+    socketio.run(app, host="0.0.0.0", debug=True)
