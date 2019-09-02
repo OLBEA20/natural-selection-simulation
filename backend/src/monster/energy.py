@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 
 class Energy:
     def __init__(self, value: float):
@@ -17,6 +19,11 @@ class Energy:
     def add(self, energy: Energy):
         self.value += energy.value
         energy.value = 0
+
+    def __eq__(self, other: Any) -> bool:
+        if other and isinstance(other, Energy) and other.value != self.value:
+            return False
+        return True
 
 
 class NoMoreEnergy(Exception):
