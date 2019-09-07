@@ -1,6 +1,7 @@
 import unittest
 
-from src.monster.energy import Energy, NoMoreEnergy
+from src.monster.energy import Energy, NotEnoughEnergy
+from src.utils.silence import silence
 
 INITIAL_VALUE = 10
 SOME_VALUE = INITIAL_VALUE - 2
@@ -14,10 +15,17 @@ class EnergyTest(unittest.TestCase):
 
         self.assertEqual(INITIAL_VALUE - SOME_VALUE, energy.value)
 
-    def test_givenEnergyDropsBelowZero_whenRemovingEnergy_thenExceptionIsRaised(self):
+    def test_givenNotEnoughEnergy_whenRemovingEnergy_thenExceptionIsRaised(self):
         energy = Energy(INITIAL_VALUE)
 
-        self.assertRaises(NoMoreEnergy, energy.remove, INITIAL_VALUE)
+        self.assertRaises(NotEnoughEnergy, energy.remove, INITIAL_VALUE)
+
+    def test_givenNotEnoughEnergy_whenRemovingEnergy_thenNoEnergyIsRemoved(self):
+        energy = Energy(INITIAL_VALUE)
+
+        silence(energy.remove)(INITIAL_VALUE)
+
+        self.assertEqual(INITIAL_VALUE, energy.value)
 
     def test_whenAddingEnergyToEnergy_thenEnergyIsTransferred(self):
         energy = Energy(INITIAL_VALUE)
@@ -41,3 +49,15 @@ class EnergyTest(unittest.TestCase):
         new_energy = energy.split()
 
         self.assertEqual(INITIAL_VALUE / 2, new_energy.value)
+
+    def test_givenEnergyIsGreater_whenCheckingForGreaterOrEqual_thenTrue(self):
+        energy = Energy(INITIAL_VALUE)
+        greater_energy = Energy(INITIAL_VALUE + 1)
+
+        self.assertGreaterEqual(greater_energy, energy)
+
+    def test_givenEnergyIsEqual_whenCheckingForGreaterOrEqual_thenTrue(self):
+        energy = Energy(INITIAL_VALUE)
+        equal_energy = Energy(INITIAL_VALUE)
+
+        self.assertGreaterEqual(equal_energy, energy)

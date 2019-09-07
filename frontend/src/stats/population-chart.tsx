@@ -60,7 +60,7 @@ class PopulationChart extends React.Component<PopulationChartProps, any> {
     this.updateElementsCount(this.props.elementNameMapping, this.props.worldElementsName);
     return (
       <Container>
-        <XYPlot width={200} height={150}>
+        <XYPlot width={200} height={200}>
           <XAxis/>
           <YAxis/>
           {this.generateSeries(this.props.elementNameMapping)}
@@ -71,7 +71,11 @@ class PopulationChart extends React.Component<PopulationChartProps, any> {
 }
 
 const Container = styled.div`
-  flex: 1;
+  flex: auto;
+  background-color: #444444;
+  border-style: solid;
+  border-width: 2px;
+  border-color: #333333;
 `;
 
 export default PopulationChart;

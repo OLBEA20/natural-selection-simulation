@@ -1,14 +1,11 @@
 import unittest
 from unittest.mock import create_autospec
 
-from src.monster.energy import Energy, NoMoreEnergy
+from src.monster.energy import Energy, NotEnoughEnergy
 from src.monster.normal_monster import NormalMonster
 from src.position import Position
-from src.world_elements import (
-    NotEnoughEnergyToMove,
-    PositionAlreadyOccupied,
-    WorldElements,
-)
+from src.utils.silence import silence
+from src.world_elements import PositionAlreadyOccupied, WorldElements
 
 A_POSITION = Position(1, 1)
 A_DELTA_POSITION = Position(2, 2)
@@ -55,15 +52,15 @@ class WorldElementsTest(unittest.TestCase):
 
     def test_givenNotEnoughEnergy_whenMovingElement_thenExceptionIsRaised(self):
         energy = create_autospec(Energy)
-        energy.remove.side_effect = NoMoreEnergy
+        energy.remove.side_effect = NotEnoughEnergy
         world_elements = WorldElements({A_MONSTER})
         arguments = (A_MONSTER, A_DELTA_POSITION, energy)
 
-        self.assertRaises(NotEnoughEnergyToMove, world_elements.move, *arguments)
+        self.assertRaises(NotEnoughEnergy, world_elements.move, *arguments)
 
     def test_givenNotEnoughEnergy_whenMovingElement_thenElementIsNotMoved(self):
         energy = create_autospec(Energy)
-        energy.remove.side_effect = NoMoreEnergy
+        energy.remove.side_effect = NotEnoughEnergy
         world_elements = WorldElements({A_MONSTER})
 
         silence(world_elements.move)(A_MONSTER, A_DELTA_POSITION, energy)
@@ -131,13 +128,3 @@ class WorldElementsTest(unittest.TestCase):
         )
 
         self.assertNotIn(a_monster_in_range, surrouding_elements)
-
-
-def silence(function):
-    def decorator(*args, **kwargs):
-        try:
-            return function(*args, **kwargs)
-        except Exception:
-            pass
-
-    return decorator

@@ -2,13 +2,9 @@ import unittest
 from unittest.mock import create_autospec, patch
 
 from src.position import Position
-from src.monster.energy import Energy
-from src.monster.normal_monster import NormalMonster
-from src.world_elements import (
-    WorldElements,
-    NotEnoughEnergyToMove,
-    PositionAlreadyOccupied,
-)
+from src.monster.energy import Energy, NotEnoughEnergy
+from src.monster.normal_monster import NormalMonster, REPRODUCTION_ENERGY
+from src.world_elements import WorldElements, PositionAlreadyOccupied
 from src.food import Food
 
 STEP = 1
@@ -143,7 +139,7 @@ class NormalMonsterTest(unittest.TestCase):
         monster = NormalMonster(
             SOME_POSITION, SOME_ENERGY, RANGE_OF_MOTION, MONSTER_NAME
         )
-        self.monsters_mock.move.side_effect = NotEnoughEnergyToMove
+        self.monsters_mock.move.side_effect = NotEnoughEnergy
 
         monster.play_turn(self.monsters_mock, WorldElements(set()))
 
@@ -166,7 +162,7 @@ class NormalMonsterTest(unittest.TestCase):
         self, generate_fraction
     ):
         generate_fraction.return_value = SOME_REPRODUCTION_PROBABILITY / 2
-        enough_energy_to_reproduce = Energy(10 + 1)
+        enough_energy_to_reproduce = Energy(REPRODUCTION_ENERGY + 1)
         monster = NormalMonster(
             SOME_POSITION,
             enough_energy_to_reproduce,
@@ -184,7 +180,7 @@ class NormalMonsterTest(unittest.TestCase):
         self, generate_fraction
     ):
         generate_fraction.return_value = SOME_REPRODUCTION_PROBABILITY / 2
-        enough_energy_to_reproduce = Energy(10 - 1)
+        enough_energy_to_reproduce = Energy(REPRODUCTION_ENERGY - 1)
         monster = NormalMonster(
             SOME_POSITION,
             enough_energy_to_reproduce,

@@ -12,9 +12,9 @@ class Energy:
         return Energy(self.value)
 
     def remove(self, value_to_remove: float):
+        if self.value <= value_to_remove:
+            raise NotEnoughEnergy
         self.value -= value_to_remove
-        if self.value <= 0:
-            raise NoMoreEnergy
 
     def add(self, energy: Energy):
         self.value += energy.value
@@ -25,6 +25,11 @@ class Energy:
             return False
         return True
 
+    def __ge__(self, other: Energy) -> bool:
+        if other is not None and isinstance(other, Energy):
+            return self.value >= other.value
+        return False
 
-class NoMoreEnergy(Exception):
+
+class NotEnoughEnergy(Exception):
     pass

@@ -4,11 +4,17 @@ import WorldMap, { WorldElement } from "./world-map/world-map";
 import Legend from "./stats/legend";
 import styled from "styled-components";
 import PopulationChart from "./stats/population-chart";
+import symbolicateStackTrace from "react-native/Libraries/Core/Devtools/symbolicateStackTrace";
 
-const socket = io.connect("http://192.168.0.196:5000/world_map");
+const socket = io.connect("http://192.168.0.196:5000/simulation");
 
 function subscribe(callback: any) {
   socket.on("json", (data: string) => callback(JSON.parse(data)));
+}
+
+const resetSimulation = () => {
+  socket.emit("stop")
+  socket.emit("start")
 }
 
 function App() {
@@ -35,6 +41,7 @@ function App() {
             .map((worldElement: WorldElement) => worldElement.element_name)
             .filter((elementName: string) => elementName === "Food")}
         />
+        <button onClick={resetSimulation}>Reset</button>
       </Stats>
     </Container>
   );
@@ -43,13 +50,15 @@ function App() {
 const Stats = styled.div`
   display: flex;
   flex: 1;
+  height: auto;
   flex-direction: column;
-  justify-content: flex-start;
+  justify-content: center;
+  background-color: #777777;
 `;
 
 const Container = styled.div`
   display: flex;
-  heigth: 85vh;
+  height: 85vh;
 `;
 
 const elementNameMapping = new Map([

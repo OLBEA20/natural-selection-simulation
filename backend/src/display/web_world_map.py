@@ -13,4 +13,4 @@ class WebWorldMap(WorldMap):
         self.elements.append(element)
 
     def display(self):
-        self.socket.send(json.dumps(self.elements), json=True, namespace="/world_map")
+        self.socket.send(json.dumps(self.elements), json=True, namespace="/simulation")

@@ -5,15 +5,13 @@ from random import random as generate_fraction
 from typing import Any, Dict
 
 from src.food import Food
-from src.monster.energy import Energy, NoMoreEnergy
+from src.monster.energy import Energy, NotEnoughEnergy
 from src.monster.monster import Monster
 from src.position import Position
-from src.world_elements import (
-    NotEnoughEnergyToMove,
-    PositionAlreadyOccupied,
-    WorldElements,
-)
+from src.world_elements import PositionAlreadyOccupied, WorldElements
 from src.world_map import WorldMap
+
+REPRODUCTION_ENERGY = 200
 
 
 class NormalMonster(Monster):
@@ -23,13 +21,15 @@ class NormalMonster(Monster):
         energy: Energy,
         range_of_motion: int,
         name: str,
-        reproduction_probability: float = 0.25,
+        reproduction_probability: float = 0.5,
+        energy_needed_to_reproduce: Energy = Energy(REPRODUCTION_ENERGY),
     ):
         super().__init__(position)
         self.energy = energy
         self.range_of_motion = range_of_motion
         self.name = name
         self.reproduction_probability = reproduction_probability
+        self.energy_needed_to_reproduce = energy_needed_to_reproduce
         self.possible_moves = [
             Position(range_of_motion, 0),
             Position(0, range_of_motion),
@@ -55,14 +55,10 @@ class NormalMonster(Monster):
         return generate_fraction() < self.reproduction_probability
 
     def _has_enough_energy(self):
-        try:
-            self.energy.remove(10)
-            return True
-        except NoMoreEnergy:
-            return False
+        return self.energy >= self.energy_needed_to_reproduce
 
     def _reproduce(self, monsters: WorldElements[Monster]):
-        new_monster_position = random.choice(self.possible_moves)
+        new_monster_position = self.position + random.choice(self.possible_moves)
         new_monster = NormalMonster(
             new_monster_position, self.energy.split(), self.range_of_motion, self.name
         )
@@ -74,7 +70,7 @@ class NormalMonster(Monster):
         movement = self._calculate_movement(foods)
         try:
             monsters.move(self, movement, self.energy)
-        except NotEnoughEnergyToMove:
+        except NotEnoughEnergy:
             self._die(monsters)
         except PositionAlreadyOccupied:
             pass

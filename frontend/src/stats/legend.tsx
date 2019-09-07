@@ -18,7 +18,11 @@ function legendElement(key: string, value: string, element_count: number) {
 }
 
 const Container = styled.div`
-  flex: 1;
+  flex: auto;
+  border-style: solid;
+  border-width: 2px;
+  border-color: #333333;
+  background-color: #444444;
 `
 
 const LegendElement = styled.span`

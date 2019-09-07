@@ -1,9 +1,11 @@
 import random
+import threading
+from time import sleep
 from random import randint
 from time import sleep, time
 from typing import Callable, Tuple
 
-from flask import Flask
+from flask import Flask, jsonify
 from flask_socketio import SocketIO
 
 from src.display.web_world_map import WebWorldMap
@@ -14,9 +16,29 @@ from src.position import Position
 from src.world import World
 from src.world_element import WorldElement
 from src.world_elements import WorldElements
+from src.worker import Worker
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")
+worker = Worker()
+
+
+@app.route("/reset", methods=["POST"])
+def reset_simulation():
+    worker.stop()
+    socketio.start_background_task(worker.run_simulation, socketio)
+    return jsonify({})
+
+
+@socketio.on("stop", namespace="/simulation")
+def stop_work():
+    sleep(1)
+
+
+@socketio.on("start", namespace="/simulation")
+def start_work():
+    workerThread = threading.Thread(target=worker.run_simulation, args=(socketio,))
+    workerThread.start()
 
 
 def world_map_constructor(socket: SocketIO):
@@ -56,7 +78,7 @@ def run_simulation(socket: SocketIO):
     )
     world = World(monsters, foods, world_map_constructor(socket))
     for turn in range(500):
-        if turn % 50 == 0:
+        if turn % 10 == 0:
             foods = generate_world_elements(
                 lambda position_energy: Food(*position_energy), randint(20, 30)
             )
@@ -68,5 +90,4 @@ def run_simulation(socket: SocketIO):
 
 
 if __name__ == "__main__":
-    socketio.start_background_task(run_simulation, socketio)
     socketio.run(app, host="0.0.0.0", debug=True)

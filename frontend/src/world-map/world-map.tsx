@@ -12,7 +12,9 @@ export interface WorldElement {
 }
 
 function WorldMap(props: WorldMapProps) {
-  return <Container>{generateGrid(props.worldElements, props.elementNameMapping)}</Container>;
+  return (
+    <Container>{generateGrid(props.worldElements, props.elementNameMapping)}</Container>
+  );
 }
 
 const generateGrid = (
@@ -63,7 +65,9 @@ const getElement = (
   element_name: string,
   elementNameMapping: Map<string, string>
 ): JSX.Element => {
-  const element: JSX.Element | undefined = <Cell color={elementNameMapping.get(element_name)}/>;
+  const element: JSX.Element | undefined = (
+    <Cell color={elementNameMapping.get(element_name)} />
+  );
   return element === undefined ? <BlankCell /> : element;
 };
 
@@ -78,8 +82,13 @@ const buildRows = (cells: JSX.Element[], width: number, height: number) => {
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  height: 85vh;
+  border-style: solid;
+  border-width: 1px;
+  height: auto;
   flex: 10;
+  background-color: #222222;
+  border-color: #333333;
+  padding: 8px;
 `;
 
 const Row = styled.div`

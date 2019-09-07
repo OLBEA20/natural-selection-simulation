@@ -1,7 +1,7 @@
 from typing import Generic, Iterable, Set, TypeVar
 
 from src.position import Position
-from src.monster.energy import Energy, NoMoreEnergy
+from src.monster.energy import Energy, NotEnoughEnergy
 
 WorldElementSubclass = TypeVar("WorldElement", covariant=True)
 
@@ -34,18 +34,19 @@ class WorldElements(Generic[WorldElementSubclass]):
         try:
             self._move(element_to_move, delta_position)
             energy.remove(delta_position.magnitude() ** 2)
-        except NoMoreEnergy:
+        except NotEnoughEnergy as exception:
             self._undo_move(element_to_move, delta_position)
-            raise NotEnoughEnergyToMove()
+            raise exception
+
+    def _undo_move(self, element: WorldElementSubclass, delta_position: Position):
+        self.remove(element.move_by(delta_position))
+        self.add(element)
 
     def _move(self, element: WorldElementSubclass, delta_position: Position):
         if element.move_by(delta_position) in self.world_elements:
             raise PositionAlreadyOccupied
         self.remove(element)
         self.add(element.move_by(delta_position))
-
-    def _undo_move(self, element: WorldElementSubclass, delta_position: Position):
-        self._move(element.move_by(delta_position), delta_position.inverse())
 
     def has(self, element: WorldElementSubclass) -> bool:
         result = element in self.world_elements
@@ -56,10 +57,6 @@ class WorldElements(Generic[WorldElementSubclass]):
 
     def __len__(self) -> int:
         return len(self.world_elements)
-
-
-class NotEnoughEnergyToMove(Exception):
-    pass
 
 
 class PositionAlreadyOccupied(Exception):
