@@ -40,8 +40,7 @@ class Worker:
     def __init__(self):
         self.running = True
 
-    def run_simulation(self, socket: SocketIO):
-        self.running = True
+    def run_simulation(self, socket: SocketIO, index: int):
         random.seed(time())
         monsters = generate_world_elements(
             lambda position_energy: NormalMonster(*position_energy, 1, "SlowMonster"),
@@ -58,7 +57,9 @@ class Worker:
             lambda position_energy: Food(*position_energy), randint(90, 100)
         )
         world = World(monsters, foods, world_map_constructor(socket))
-        for turn in range(500):
+        turn = 0
+        while self.running:
+            turn += 1
             if turn % 10 == 0:
                 foods = generate_world_elements(
                     lambda position_energy: Food(*position_energy), randint(20, 30)
@@ -71,3 +72,6 @@ class Worker:
 
     def stop(self):
         self.running = False
+
+    def start(self):
+        self.running = True

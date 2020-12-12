@@ -1,7 +1,7 @@
+from random import randint
 import random
 import threading
-from time import sleep
-from random import randint
+import logging
 from time import sleep, time
 from typing import Callable, Tuple
 
@@ -13,32 +13,38 @@ from src.food import Food
 from src.monster.energy import Energy
 from src.monster.normal_monster import NormalMonster
 from src.position import Position
+from src.worker import Worker
 from src.world import World
 from src.world_element import WorldElement
 from src.world_elements import WorldElements
-from src.worker import Worker
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")
 worker = Worker()
+index = 1
 
 
-@app.route("/reset", methods=["POST"])
-def reset_simulation():
-    worker.stop()
-    socketio.start_background_task(worker.run_simulation, socketio)
+@app.route("/heartbeat", methods=["GET"])
+def heartbeat():
+    logging.getLogger(__name__).info("alive")
     return jsonify({})
 
 
 @socketio.on("stop", namespace="/simulation")
-def stop_work():
-    sleep(1)
+def stop():
+    worker.stop()
 
 
 @socketio.on("start", namespace="/simulation")
 def start_work():
-    workerThread = threading.Thread(target=worker.run_simulation, args=(socketio,))
-    workerThread.start()
+    global index
+    worker.start()
+    worker_thread = threading.Thread(
+        target=worker.run_simulation, args=(socketio, index)
+    )
+    index += 1
+    worker_thread.start()
+    return jsonify({})
 
 
 def world_map_constructor(socket: SocketIO):

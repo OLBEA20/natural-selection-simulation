@@ -4,9 +4,8 @@ import WorldMap, { WorldElement } from "./world-map/world-map";
 import Legend from "./stats/legend";
 import styled from "styled-components";
 import PopulationChart from "./stats/population-chart";
-import symbolicateStackTrace from "react-native/Libraries/Core/Devtools/symbolicateStackTrace";
 
-const socket = io.connect("http://192.168.0.196:5000/simulation");
+const socket = io.connect("http://localhost:5000/simulation");
 
 function subscribe(callback: any) {
   socket.on("json", (data: string) => callback(JSON.parse(data)));
@@ -14,6 +13,10 @@ function subscribe(callback: any) {
 
 const resetSimulation = () => {
   socket.emit("stop")
+  socket.emit("start")
+}
+
+const startSimulation = () => {
   socket.emit("start")
 }
 
@@ -42,6 +45,7 @@ function App() {
             .filter((elementName: string) => elementName === "Food")}
         />
         <button onClick={resetSimulation}>Reset</button>
+        <button onClick={startSimulation}>Start</button>
       </Stats>
     </Container>
   );
